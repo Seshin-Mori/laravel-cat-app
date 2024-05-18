@@ -2,7 +2,11 @@
 
 use App\Http\Controllers\UtilityController;
 use App\Http\Controllers\GameController;
+use App\Http\Controllers\RequestSampleController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\EventController;
+use App\Http\Controllers\HiLowController;
+use App\Http\Controllers\PhotoController;
 
 Route::get('/', fn () => view('index'));
 Route::get('/curriculum', fn () => view('curriculum'));
@@ -81,3 +85,34 @@ Route::get('/omikuji', [GameController::class, 'omikuji']);
 // });
 //GameControllerクラスのmontyHallメソッドを呼び出す
 Route::get('/monty-hall', [GameController::class, 'montyHall']);
+
+//リクエスト
+Route::get('/form', [RequestSampleController::class, 'form']);
+Route::get('/query-strings', [RequestSampleController::class, 'queryStrings']);
+//idをルートパラメータとみなす
+Route::get('/profile/{id}', [RequestSampleController::class, 'profile'])->name('profile');
+Route::get('/products/{category}/{year}', [RequestSampleController::class, 'productsArchive']);
+
+//名前付きルート
+Route::get('/route-link', [RequestSampleController::class, 'routeLink']);
+
+//ログインのアクション
+Route::get('/login', [RequestSampleController::class, 'loginForm']);
+Route::post('/login', [RequestSampleController::class, 'login'])->name('login');
+
+//よくあるルート登録は、Route::resourceメソッドを使用することで簡略化できる
+//典型的とされるルートは7つのルートで
+//一覧表示、新規登録フォーム表示、新規登録処理、詳細表示、編集フォーム表示、更新処理、削除処理
+//アクションについても同じで、典型的なアクションを--resourceオプションで指定することで、一括でルート登録できる
+Route::resource('/events', EventController::class)->only(['index', 'create', 'store']);
+
+// ハイローゲーム
+Route::get('/hi-low', [HiLowController::class, 'index'])->name('hi-low');
+Route::post('/hi-low', [HiLowController::class, 'result']);
+
+//ファイル管理
+Route::resource('/photos', PhotoController::class)->only(['create', 'store', 'show', 'destroy']);
+//画像用のルーティングがないので、シンボリックリンクを作成する
+//ダウンロード用のルートはresourceメソッドで登録できないため、getメソッドで登録する
+Route::get('/photos/{photo}}/download', [PhotoController::class, 'download'])->name('photos.download');
+
